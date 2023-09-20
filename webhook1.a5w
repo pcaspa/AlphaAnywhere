@@ -1,0 +1,44 @@
+<%A5
+
+	DIM cn as SQL::Connection
+	dim flagResult as l 
+	flagResult = cn.open("::Name::sbcs")
+	if flagResult = .f. then 
+		dim errorMsg as c
+		errorMsg = "document.getElementById('errorMsg').innerHTML='Error: " + js_escape(cn.CallResult.text) + "';"
+		flag = cn.execute("INSERT INTO dbo.tblErrorLog (note, error, sql, ErrTime) SELECT 'WebHook', '"+stritran(cn.CallResult.text,chr(39),chr(39)+chr(39)) +"', '" + stritran(errorMsg,chr(39),chr(39)+chr(39)) +"', { fn NOW() }") 
+		
+		end 
+	end if
+
+	
+	Dim tmp as c 
+	tmp = extract_string(Request.Body,"msg_from",",")
+	dim msg_from as c = substr(tmp,4,len(tmp)-4)
+	tmp = extract_string(Request.Body,"type",",")
+	dim type as c = substr(tmp,4,len(tmp)-4)
+	tmp = extract_string(Request.Body,"subject",",")
+	dim subject as c = substr(tmp,4,len(tmp)-4)
+	tmp = extract_string(Request.Body,"rcpt_to",",")
+	dim rcpt_to as c = substr(tmp,4,len(tmp)-4)	
+	tmp = extract_string(Request.Body,"reason",",")
+	dim reason as c = substr(tmp,4,len(tmp)-4)	
+
+
+
+	
+	dim sqlStatement as c 
+	sqlStatement = "INSERT INTO tbl930EmailBounce (msg_from, type, subject, rcpt_to, reason) SELECT '"+ msg_from+"', '"+type+"', '"+ subject+"', '"+ rcpt_to+"', '"+ reason+"'"
+	flagResult = cn.Execute(sqlStatement)
+
+	if flagResult = .f. then 
+		dim errorMsg as c
+		errorMsg = "document.getElementById('errorMsg').innerHTML='Error: " + js_escape(cn.CallResult.text) + "';"
+		flag = cn.execute("INSERT INTO dbo.tblErrorLog (note, error, sql, ErrTime) SELECT 'WebHook', '"+stritran(cn.CallResult.text,chr(39),chr(39)+chr(39)) +"', '" + stritran(errorMsg,chr(39),chr(39)+chr(39)) +"', { fn NOW() }") 
+		
+		end 
+	end if 
+
+	cn.close()
+
+%>
