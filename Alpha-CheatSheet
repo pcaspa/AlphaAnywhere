@@ -1,0 +1,871 @@
+----------------SQL - direct -----------------------------------------------------------------------
+
+Dim cn as sql::connection
+Dim sql as c
+Dim rs as sql::ResultSet
+Dim args as sql::Arguments
+Dim flag as l
+
+flag = cn.open("::Name::sbcs")
+
+if flag =.f. then 	
+	exit function
+	e.javascript ="alert('ERROR: Connection Lost');"
+end if
+
+
+sql = "INSERT INTO dbo.tbl750Assets (AssetDescription, Status, BizID, UserID, PurchasePrice, DateAcquired, CurrentValue,  StatusID) "
+sql = sql +"SELECT :TransDesc, 'Inactive' , :BizID, :UserID, :DepAmt, :BankTransDate, :DepAmt, 2 ,'"+dtoc(ctod(e.DataSubmitted.PaidDate),"12-")+"'"
+			
+args.Clear()
+args.add("TransDesc",convert_type(e.datasubmitted.TransDesc,"C"))
+args.add("BizID",convert_type(session.svBizID,"N"))
+args.add("UserID",convert_type(session.svUserID,"N"))
+args.add("DepAmt",convert_type(e.datasubmitted.DepAmt,"N"))
+args.add("BankTransDate",convert_type(e.datasubmitted.BankTransDate,"D"))
+
+flag = cn.execute(sql, args)
+if flag =.f. .and. cn.CallResult.text <> "Success" then 
+	cn.execute("INSERT INTO dbo.tblErrorLog (note, error, sql, ErrTime) SELECT 'Note', '"+stritran(cn.CallResult.text,chr(39),chr(39)+chr(39)) +"', '" + stritran(SQL,chr(39),chr(39)+chr(39)) +"', { fn NOW() }") 
+	exit function
+end if
+
+'Dim AppID as n = Cn.LastInsertedIdentity()  'cn.resultset.lastinsertedidentity
+'Dim AffectedRows as n = cn.Affectedrows()
+'if AffectedRows = 0 then
+'txt = rs.tostring()
+
+rs = cn.ResultSet
+
+flag = rs.NextRow()
+
+if flag =.f. .and. cn.CallResult.text <> "Success" then 
+	flag = cn.execute("INSERT INTO dbo.tblErrorLog (note, error, sql, ErrTime) SELECT 'note', '"+stritran(cn.CallResult.text,chr(39),chr(39)+chr(39)) +"', '" + stritran(SQL,chr(39),chr(39)+chr(39)) +"', { fn NOW() }") 
+	exit function
+end if
+
+
+'while flag
+    'txt = txt + "Lastname: " + rs.data("Lastname") + crlf()
+    'when there are no more records in the ResultSet, executing .nextRow()
+    'will return .f., so flag will be .fl and the while loop will end
+'    flag = rs.nextRow()
+'end while
+
+
+if .not. eval_valid("rs.data(1)")
+   ' Show Error
+   exit function
+end if
+
+
+js=js+"{dialog.object}.setValue('control','"+js_escape(rs.data(1)))+"')"
+
+---------------------------------------------------------------------------------------------------------------------
+
+Session variables  (server side and within some components)
+
+	xbasic	session.FirstDCNSet
+
+ -vid M41
+
+
+- m45,2 button above gird
+
+
+Global Variables (Browser side)
+
+- D15	
+
+
+
+
+xbasic--------------------------------------------------
+
+
+
+
+chr(92) = "\"
+
+
+
+
+
+JS---------------------------------------------
+
+
+function Left(str, n){
+if (n <= 0)
+return "";
+else if (n > String(str).length)
+return str;
+else
+return String(str).substring(0,n);
+}
+
+function Right(str, n){
+if (n <= 0)
+return "";
+else if (n > String(str).length)
+return str;
+else {
+var iLen = String(str).length;
+return String(str).substring(iLen, iLen - n);
+}
+}
+
+
+
+function strip(str){
+var iLen = String(str).length;
+return String(str).substring(iLen, 1);
+
+}
+
+var samount = strip({dialog.Object}.getValue(rn2));
+
+
+
+function setRandom()  {
+
+
+var rnd = Math.floor((Math.random()*30)+1);
+
+
+var rnd = parseInt({dialog.Object}.getValue('CaptchaNo'))+1;
+
+{dialog.Object}.setValue('CaptchaNo',rnd);
+
+
+var captxt = captxtall.substring(rnd*8-8,rnd*8)
+alert(captxt);
+
+
+{dialog.Object}.refreshClientSideComputations();
+
+if(data.length !=5) return 'invalid zip';
+
+var currentTime = new Date();
+var month = currentTime.getMonth() + 1;
+var day = currentTime.getDate();
+var year = currentTime.getFullYear();
+var hr = currentTime.getHours();
+var mn = currentTime.getMinutes();
+
+var gendate =Right('0'+day,2) +"/" +Right('0'+month,2) + "/" + year +" "+Right('0'+hr,2)+":"+Right('0'+mn,2) ;
+
+{dialog.Object}.setValue('ACTSTARTTIME',gendate);
+
+var filt = 'BookDate = \'' + gendate + '\'';
+
+{dialog.Object}.closeContainerWindow(this);
+
+
+{grid.Object}.ajaxCallack('','','deleteSecurity','','');
+
+}
+
+
+Put this in the canSearchSubmit event
+
+A5.msgBox.show('Searching...','Please wait while we search for the records.','none',function() {});
+
+
+Put this in the afterSearchSubmit event
+
+A5.msgBox.hide();
+
+svCustFilt ={javascript}function(){return {dialog.object}.getValue('txtCustomerID');}()
+
+
+for(var i = 1; i <=parentGridAC._rowsInGrid; i++){
+	if(parentGridAC.getvalue('G','Ass1',i) = {dialog.Object}.getValue('cmbVH')){
+		{dialog.Object}.setValue('ACRownum',i);
+	}
+
+}
+
+
+
+var answer= confirm('OK to delete this flight?');
+if(answer == true) {
+	{grid.Object}.ajaxCallback('G','{Grid.RowNumber}:all','delFlight','','');
+} else{
+	alert('Flight was not deleted');
+
+} 
+
+
+A5.msgBox.show('Delete Confirmation','<div style="height: 1in; padding: 15pt;">Are you sure you wish to delete this checklist?</div>',[\{html: 'Yes', value: 'yes'},\{html: 'No', value: 'no'}],function(button) \{if(button == 'yes') \{
+setTimeout(function() {{grid.Object}.ajaxCallback('G','{Grid.RowNumber}:all','DelBtn','','_getData=true','');},10)
+}
+if(button == 'no') \{
+setTimeout(function() \{},10)
+}
+});
+
+
+A5.msgBox.show('Stock Check','<div style="height: 1in; padding: 15pt;">You do not have stock of this item</div>',[{html: 'OK', value: 'ok'}],
+function(button) {if(button == 'ok') {setTimeout(function() {},10)}});
+
+
+e.javascript="A5.msgBox.show('SuiteBiz','<div style="+chr(34)+"height: 1in; padding: 15pt;"+chr(34)+">You can not attach files or images with a Free account.  Please upgrade your account</div>',[{html: 'OK', value: 'ok'}],function(button) {if(button == 'ok') {setTimeout(function() {},10)}});"
+
+
+Grid
+
+
+window['__InvFilter']  = 'New';
+{grid.Object}.gridFilterSet('InvStat = 1');
+
+session.__protected__clientSideDateFormat = "dd/MM/yyyy"
+
+
+
+var cw=A5.windows.getFromElement(this);
+cw.hide();
+
+
+function pausecomp(ms) {
+ms += new Date().getTime();
+while (new Date() < ms){}
+} 
+
+
+
+var rowNum = {Grid.RowNumber};
+alert(rowNum);
+var RptName = {grid.Object}.getValue('G','ReportName',rowNum);
+alert(RptName);
+
+
+var parentObj = window['__dlgCompName'] + "_DlgObj";
+alert(parentObj);
+window[parentObj].setvalue('ReportName',RptName);
+
+
+e.javascript = e.javascript +"$('_300DLGINVENTORY_320GRDINVTRANS.S.TRANSACTIONDATE').value = '"+e.dataSubmitted.AccPrdStart+"';"
+
+
+------ primary key --------------------------------
+
+
+Dim primaryKey as n
+
+if eval_valid("e.rtc.a_sections[1].rows[1].alias[1].primaryKeyValue[1].value")
+	if convert_type(e.rtc.a_sections[1].rows[1].alias[1].primaryKeyValue[1].value,"n") > 0
+		primaryKey = convert_type(e.rtc.a_sections[1].rows[1].alias[1].primaryKeyValue[1].value,"n")
+	end if
+end if
+
+if eval_valid("e.rtc.a_sections[1].rows[1].alias[1].primaryKeyValuesSubmitted")
+	if convert_type(e.rtc.a_sections[1].rows[1].alias[1].primaryKeyValuesSubmitted,"n") > 0 then
+		primaryKey = convert_type(e.rtc.a_sections[1].rows[1].alias[1].primaryKeyValuesSubmitted,"n")
+	end if
+end if
+
+---------------------------------------
+
+
+ongridexecute
+
+e.tmpl.SearchField_Info[1].Initial_Value
+
+BEforeSearch - Server side
+
+session.ffFromDate=searchdatasubmitted.from.date
+session.ffProdID=searchdatasubmitted.ProductID
+
+
+onsearchrender
+
+{grid.Object}.setValue('S','ACTIVE','True');
+{grid.Object}.submitSearchForm();
+
+-------Date Conversion ----------------
+
+CONVERT (datetime, '1/2/2001', 101)  US
+CONVERT (datetime, '1/2/2001', 102)	SQL
+CONVERT (datetime, '1/2/2001', 103)  UK
+sql = "..'"+dtoc(ctod(e.DataSubmitted.PaidDate),"12-")+"'.."
+e.control.WPPaidDate =date()+" "+time()
+
+datetime to date : DATEADD(dd, DATEDIFF(dd, 0, getdate()), 0)
+
+CONVERT (varchar(10), JobDate, 103)
+
+RTRIM(SUBSTRING('Sunday   Monday   Tuesday  WednesdayThursday Friday   Saturday ', DefVBdayofweek * 9 - 8, 9))
+
+JS WIthout ms
+Math.floor(Date.now() / 1000);
+
+----------
+
+Let's assume that your IP address is : 12.34.56.78
+
+   The 32-bit decimal form value:   
+      = (16777216 x 12) + (65536 x 34) + (256 x 56) + (78)   
+      = 203569230  
+
+   OR
+
+---------- Pointer ----------
+
+this.style.cursor="pointer";
+
+
+------- Initial Logical ---------------
+
+
+Initial Value="True"
+
+------- redirect --------------------
+
+response.redirect("main.a5w")
+From xbasic ajax SetBizID="window.location.href = 'main.a5w'"
+From JS window.location.assign("http://www.alto-stratus.com.au");
+
+--- GUID --------------------
+
+guid=remspecial(api_uuidcreate()).
+
+SQL="NEWID()"
+-- inter comp comms ---
+
+e.javascript = e.javascript + "var po = window['"+session.svCallComp2+"']+'_GridObj';"
+e.javascript =e.javascript + "window[po].refresh();"
+
+
+---  click buttons ----
+
+grid buttons = $('{grid.ComponentName}.V.R{Grid.RowNumber}._UNBOUND_BUTTON_2').click();	
+dlg buttons = e.javascript = e.javascript + "$('{dialog.ComponentName}.V.R1.BUTTON_3').click();"
+
+var rowNum = {Grid.Object}._selectedRow;
+
+$('{grid.ComponentName}.V.R'+rowNum+'._UNBOUND_BUTTON_10').click();
+
+---  rows in grid ----
+
+var rg = {grid.Object}._rowsInGrid; 
+
+--  preset search ---
+
+
+{grid.object}.setValue('S','SUBASSM','True');
+{grid.Object}.submitSearchForm();
+
+
+--- wait ---
+
+setTimeout(function() { 
+ },100);
+
+
+--- this then that   ----
+
+A5.executeThisThenThat(
+'{grid.Object}.ajaxCallback(\'G\',\'{Grid.RowNumber}:all\',\'chkComplete\',\'\',\'\');',
+'{dialog.object}.runAction(\'complete\');'
+);
+
+e.javascript  = e.javascript  +"function fn1(){$('_200UXBOOKAPPOIN_201UXWINDOWTINT.V.R1.BUTTON_SUBMIT').click();"
+	if e.dataSubmitted.FlatOpen = "1" then
+		e.javascript  = e.javascript  +"$('_200UXBOOKAPPOIN_202UXFLATGLASS.V.R1.BUTTON_SUBMIT').click();"
+	end if
+	if e.dataSubmitted.UAOpen = "1" then
+		e.javascript  = e.javascript  +"{dialog.EmbeddedGrid_205GRDACCESSORIES}.submitGridPart();"
+	end if
+	e.javascript  = e.javascript  +"}"
+	
+	e.javascript = e.javascript + "function fn2(){{grid.Object}.ajaxCallback('G','{Grid.RowNumber}:all','GroupKPI','','');}"
+	
+	e.javascript  = e.javascript  +"A5.executeThisThenThat(fn1,fn2);"
+	e.javascript = e.javascript + "$('{dialog.ComponentName}.V.R1.BUTTON_CLOSE').click();"
+
+m100uxMain make safe - complete button
+
+
+
+----------setval ----------------
+
+{dialog.Object}.setValue('tax',ta,false);
+
+--- set get attribute  ---
+
+var ph = {dialog.object}.panelHeight('PANNELLAYOUT_1');
+
+nh=ph-100+'px';
+
+$('{dialog.ComponentName}.V.R1.CONTAINER_2.CONTENT').style.height =nh;
+
+'check inspect element'
+
+---  TIme Zone Adjustment ---
+
+var d = new Date();
+var tz = 11;
+
+var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+var utcd = new Date(utc);      
+    
+var n = new Date(utc + (3600000*tz));
+var nd = new Date(n);       
+
+
+var fmt = 'dd/MM/yyyy 0h:0m' ;
+
+alert( utcd.toFormat(fmt));
+alert( nd.toFormat(fmt));
+
+--- test session variable  ----
+
+dim test as c = session.some_var
+
+if (.not. isNull(test)) then
+  ' do things
+end if
+
+
+-----  After submit ----
+
+if rtc.flagRecordWasSaved = .f. then
+	exit function
+end if
+
+
+
+----  Livepreview check   ----
+
+if *any(request.applicationRoot,"LivePreview") = .t.
+
+
+
+--- aftervalidate ----
+
+if (e.hasErrors) {
+	{dialog.Object}.setValue('SUB','0');
+}
+
+
+
+---canrecordnavigate dirty check ---
+
+if(e.isDataDirty){
+{dialog.object}.runAction('UnSavedAlert');
+return false;
+}
+
+
+-------- ele ---------
+
+var ele =$('{dialog.ComponentName}.V.R1.CONTAINER_2.CONTENT');
+ele.innerHTML='new val';
+ele.value='new val';
+
+
+---------- click button list   -----
+
+var btnListParent = $('{dialog.ComponentName}.V.R1.BTNLIST.CONTROL');
+var firstBtn = btnListParent.children[0];
+$(firstBtn.id).click();
+
+---------  Ajax Additional data to submit   --------
+
+SBCS 535grdInvoices
+
+js:-
+
+var ajtax = '_ajtax='+tax +'&';
+
+{grid.Object}.ajaxCallback('G','{Grid.RowNumber}:all','addPayAlloc','','_getData=true&'+ajtax,{});
+
+
+xb:-
+dim tax as n =  e._ajtax
+
+
+------ grid page nav last -------------
+
+{grid.Object}.pageNavigate('last');
+
+------ setValue with going dirty -------------
+
+SBCS m170uxCHeck1
+
+e.javascript="{dialog.Object}.resetForm(false);"'{dialog.Object}.setValue('SectionOther',"+SecOther+" ,false);"
+
+dim jsToSetControlValues as c 
+jsToSetControlValues = "var _d = {};_d['SectionOther'] = '"+SecOther+"';{dialog.object}.populate(_d,1,true,true);{dialog.object}.prepare();"
+ 
+e.javascript=e.javascript + jsToSetControlValues
+
+
+----- tabindex -------
+
+onRenderComplete Event
+
+$('{dialog.ComponentName}.V.R1.TXTLOCATION').tabIndex = "1";
+
+
+----- refresh parent --------
+
+e.javascript = e.javascript + "var po = {dialog.object}.getParentObject();po.refresh();"
+
+--------- Ajax Additional Info ---------------
+
+See SBCS m450InspRpt New Button
+
+--------- s.isdatadirty ---------------
+
+if(e.isDataDirty){
+
+var answer= confirm('You have unsaved data.  Do you with to continue?');
+if(answer == true) {
+	return;
+} else{
+	return false;
+
+} 
+
+}
+
+
+SQL - SP------------------------------------------------------------------------------------
+
+Dim cn as sql::connection
+Dim args as sql::Arguments
+Dim flag as l
+Dim SQL as c
+
+flag = cn.open("::Name::sbcs")
+
+if flag =.f. then 	
+	exit function
+end if
+
+
+args.Clear()
+args.add("BizID",session.svBizID)
+args.add("MasterID",MasterID)
+
+flag = cn.execute("exec qry533UpdatePaidSP :BizID, :MasterID", args)
+
+if flag =.f. then 
+	SQL="qry533UpdatePaidSP"
+	cn.execute("INSERT INTO dbo.tblErrorLog (note, error, sql, ErrTime) SELECT 'Note', '"+stritran(cn.CallResult.text,chr(39),chr(39)+chr(39)) +"', '" + stritran(SQL,chr(39),chr(39)+chr(39)) +"', { fn NOW() }") 
+	exit function
+end if
+
+
+
+
+
+---------Transactions ----------------
+
+http://wiki.alphasoftware.com/SQL+Co...ction+Function 
+
+BEGIN TRAN; UPDATE tbl172SWMSCheck SET CheckStat = 0 WHERE SWMSChk = '+currID+' COMMIT TRAN;
+
+http://www.sqlteam.com/article/introduction-to-transactions
+
+
+-----------------------------------------------------------------------------------------
+
+ckEditor
+
+Head
+
+<script type="text/javascript" src="ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="ckeditor/a5_ckeditor.js"></script>
+
+
+CanGridSubmit
+
+if(window.location.protocol.indexOf("http")>=0) {
+ckUpdate('GRIDROW','{grid.componentName}')
+}
+
+
+OnGridRender
+
+if(window.location.protocol.indexOf("http")>=0) {
+ckInstance('GRIDROW','CONTENT','{grid.componentName}');
+}
+
+if(window.location.protocol.indexOf("http")>=0) {
+ckInstance('GRIDROW','EMAILMSG','{grid.componentName}','Alpha','730','200',"uiColor:'#c7d4e7'");
+}
+
+
+-----------------------------------------------------------------------------------------
+
+
+
+
+--Grid Popup Search----------------------------------------------------------------------------
+
+
+Master Template
+
+{ActionButton:SEARCHWINDOW}
+<div id="search">
+{grid.Search_Part}
+</div>
+{grid.Grid_Part}
+{grid.DetailView_Part}
+
+
+afterSeachClear + afterSearchSubmit = {Grid.object}.getWindow('SEARCHWINDOW').hide();
+
+
+
+----Mobile ------------------------------------------------------------------
+
+DRAG SCROLLING:  Container stype : overflow:auto;   + chk drag scrolling
+
+send email: window.location='mailto:'(dialog.object}.listGetValue('List','email','rownumber);
+
+
+
+scroll to top
+
+http://www.ajaxvideotutorials.com/V12Videos/ux_disconnected_image_capture_configuringTheMobileVersion1.swf
+
+
+---------------Access Convert ----------------------
+
+function nz as c (MyInputVar, replacestr)
+nz=if(MyInputVar="",replacestr,MyInputVar)
+end function
+
+
+---- Modern Frame  -----
+
+Collapse the frame
+
+
+
+Code:
+$('{grid.componentName}.SHOWHIDEPANELDIV.FRAME_1.R1').style.display='none';
+$('{grid.componentName}.SHOWHIDEPANELIMG.FRAME_1.R1').src = '{images.CollapseContainer.Open}';
+this.className = '[class.ModernFrameTitleCollapsed]';
+{dialog.object}._showHideFrame('FRAME_1','hide');
+ Expand the frame
+
+
+
+Code:
+$('{grid.componentName}.SHOWHIDEPANELDIV.FRAME_1.R1').style.display='';
+$('{grid.componentName}.SHOWHIDEPANELIMG.FRAME_1.R1').src = '{images.CollapseContainer.Close}';
+this.className = '[class.ModernFrameTitle]';
+{dialog.object}._showHideFrame('FRAME_1','show');
+
+
+---- Panel onsize js  --------
+
+if({dialog.object}){
+	var ele = {dialog.object}.getPointer('xxxx');
+	var padding = 7;
+	ele.style.height = (this.height - padding) +'px' ;
+}
+
+------string-----------------------------------------------
+
+<<%txt%
+%txt%
+
+<<%longstring%
+%longstring%
+
+----Dirty -----
+
+{dialog.object}._isDirty = false;
+
+if ({dialog.object}.getControl('LIST1')._dvIsDirty)
+ {alert('Dirty');
+ }
+ 
+ ---------------low date ----------------
+ 
+ function:getLowDate
+ 
+ function getLowDate() {
+var currentTime = addDays(new Date(), 0);
+
+var month = currentTime.getMonth() + 1;
+var day = currentTime.getDate();
+var year = currentTime.getFullYear();
+
+var gendate =Right('0'+day,2) +"/" +Right('0'+month,2) + "/" + year;
+
+return gendate;
+
+}
+
+function addDays(theDate, days) {
+    return new Date(theDate.getTime() + days*24*60*60*1000);
+}
+ 
+ ------------------------- Access UX popup ------------
+ 
+ var obj = {dialog.object}.getControl('AP1');
+obj._play.stop();
+
+here is why this is wrong.
+
+the onBeforeHide is a method of your parent UX component. this component does NOT have an audio control in it.
+
+var obj = UXALIAS_DlgObj.getControl('AP1');
+obj._play.stop();
+
+------------------------- Grid Debug ------------
+
+tmpl.showErrorDetail = .t.
+
+------------------------- Handy code to check if a List is dirty -------------------------
+
+
+ var listObj = {dialog.object}.getControl('MYLIST');
+ var flag = listObj.listIsDirty();
+ if(flag) { 
+ alert('You must first sync your edits before you can refresh the List');
+ } else { 
+ {dialog.object}.refreshListData('MYLIST');
+ } 
+ ------------------  repeating section  ------------------------------------
+ function delAllRepeatSectionRows1() {
+	//Get the number of rows in the repeating section
+	var repSectRows = {dialog.Object}._getRepeatingSectionRowCount('CONTAINER_1');
+	//If there are no rows in the repeating section, exit the routine
+	//If there are rows, delete them all
+	switch(repSectRows)	
+	{
+	case 0:
+		//There are no rows so we are done
+		break;
+
+		
+	default:
+		//There is at least 1 row so we must delete it
+		for (var i=1; i<=repSectRows; i++)
+			{
+			//alert('i=' + i)
+			//The _getRepeatingSectionRowCount method was taken from the FireBug debug window
+			//and deals only with logical records (excluding deleted records)
+			//We must therefore convert i to it's physical row number before attempting to delete the record
+			
+			var phys_i = {dialog.Object}._repeatingSectionLogicalToPhysicalRow('CONTAINER_1',i);
+			
+			//delete the row
+			{dialog.Object}.deleteRepeatingSectionRow('CONTAINER_1',phys_i,true);
+				
+			}  //End for
+
+	} //End switch
+	{dialog.Object}.addRepeatingSectionRow('CONTAINER_1')
+	
+}
+
+
+------------------------- object dirty ------------------------------------------------
+
+var obj = window._childObj;
+if(obj){
+	if(obj._isDirty) {
+		alert();
+		return false;
+	}
+}
+
+------------session check ------------------------------
+
+if .not. eval_valid("session.svInvID")
+	session.svInvID="0"
+end if
+
+-------------------  js logic fix
+
+var tc = {dialog.Object}.getValue('TANDC');
+tc = '' +tc;
+tc=tc.toUpperCase();
+if(tc!='TRUE'){
+
+
+------------------ References ----------------------------
+
+Custom character filter used in unitint 315dlgEditProduct
+
+------------------ Grid responsive ----------------------------
+
+<span style="visibility: hidden;">x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x </span>
+
+<table border="0" width="980">
+	<tr>
+		<td></td>
+	</tr>
+</table>
+----df-------
+
+if({dialog.object}._isDirty) {
+A5.msgBox.show('Confirmation','<div style="height: 1in; padding: 15pt;">You have unsaved data.  Are you sure you with to continue?</div>',[{name: 'ok', html: 'OK', value: 'ok'},{name: 'cancel', html: 'Cancel', value: 'cancel'}],function(button) {if(button == 'ok') {
+setTimeout(function() {{dialog.object}.runAction('Close');},10)
+}
+if(button == 'cancel') {
+setTimeout(function() {},10)
+}
+});
+}else{
+	{dialog.object}.runAction('Close');
+}
+
+
+----------- Spin List font -----------
+
+https://www.youtube.com/watch?v=Yao2F74dJzI  (end)
+
+----  JS Chart ------
+
+https://www.youtube.com/watch?v=hBkUU5wsijY
+
+---- scroll -----
+
+	//scroll to top of panel card
+	//A5.u.element.setScroll({dialog.object}.panelGetId('PANEL_DETAIL','body'),0,0);
+	
+	
+-------------- double click ----------------------
+
+if(typeof {dialog.object}._locked == 'undefined') {
+	{dialog.object}._locked = true;
+	setTimeout(function() { delete {dialog.object}._locked }},1000);
+	{grid.Object}.ajaxCallback('G','{Grid.RowNumber}:all','delFlight','','');
+}
+
+-------------- BizID / BPBizID-------------------
+BizID * (1 - CAST(IsTask AS int)) + ISNULL(BPBizID, 0) * CAST(IsTask AS int)
+
+-----------------------scroll ---------------------------------------------
+
+//scroll to top of panel card
+A5.u.element.setScroll({dialog.object}.panelGetId('PANEL_DETAIL','body'),0,0);
+
+
+----------------  state variables  ---------
+
+set: {dialog.object}.stateInfo['_Step'] = step;
+
+get: e._state._Step
+
+
+------------------  Scroll Top ----------------
+scroll to top of panel card
+A5.u.element.setScroll({dialog.object}.panelGetId('PANEL_DETAIL','body'),0,0);
+
+
+---------------- SQL Float -----------------------
+
+ROUND(CAST(DATEDIFF(n, dbo.qry260JobFlow.PreActionedDT, dbo.qry260JobFlow.Actioned) AS float) / 60, 2)
+
+
+----- close ----
